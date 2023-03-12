@@ -1,59 +1,140 @@
 import "./single.scss";
 import Sidebar from "../../components/sidebar/Sidebar";
-import Navbar from "../../components/navbar/Navbar";
-import Chart from "../../components/chart/Chart";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useNavigate } from "react-router-dom";
 import List from "../../components/table/Table";
 
 const Single = () => {
+  const [restaurant, setRestaurant] = useState(null);
+  const [formData, setFormData] = useState({});
+  const { id } = useParams();
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      try {
+        const restaurantRef = doc(db, "restaurants", id);
+        const snapshot = await getDoc(restaurantRef);
+        if (snapshot.exists()) {
+          setRestaurant(snapshot.data());
+        } else {
+          console.log("Restaurant not found");
+        }
+      } catch (error) {
+        console.error("Error fetching restaurant:", error);
+      }
+    };
+    fetchRestaurant();
+  }, [id]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const restaurantRef = doc(db, "restaurants", id);
+      await updateDoc(restaurantRef, formData);
+      navigate(-1)
+    } catch (error) {
+      console.error("Error updating restaurant:", error);
+    }
+  };
+
+
+
   return (
     <div className="single">
       <Sidebar />
       <div className="singleContainer">
-        <Navbar />
         <div className="top">
           <div className="left">
-            <div className="editButton">Edit</div>
             <h1 className="title">Information</h1>
-            <div className="item">
-              <img
-                src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260"
-                alt=""
-                className="itemImg"
-              />
-              <div className="details">
-                <h1 className="itemTitle">Jane Doe</h1>
-                <div className="detailItem">
-                  <span className="itemKey">Email:</span>
-                  <span className="itemValue">janedoe@gmail.com</span>
+            {restaurant && (
+              <form onSubmit={handleSubmit}>
+                <div className="item">
+                  <img src={restaurant.img} alt="" className="itemImg" />
+                  <div className="details">
+                    <div className="detailItem">
+                      <label htmlFor="name" className="itemKey">
+                        Name:
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        className="itemValue"
+                        value={formData.name !== undefined ? formData.name : restaurant?.name || ''}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="detailItem">
+                      <label htmlFor="phone" className="itemKey">
+                        Phone:
+                      </label>
+                      <input
+                        type="text"
+                        name="phone"
+                        id="phone"
+                        className="itemValue"
+                        value={formData.phone !== undefined ? formData.phone : restaurant?.phone || ''}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="detailItem">
+                      <label htmlFor="address" className="itemKey">
+                        Address:
+                      </label>
+                      <input
+                        type="text"
+                        name="address"
+                        id="address"
+                        className="itemValue"
+                        value={formData.address !== undefined ? formData.address : restaurant?.address || ''}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="detailItem">
+                      <label htmlFor="status" className="itemKey">
+                        Status:
+                      </label>
+                      <select
+                        name="status"
+                        id="status"
+                        value={formData.status !== undefined ? formData.status : restaurant?.status || ''}
+                        onChange={handleInputChange}
+                      >
+                        <option value="active">active</option>
+                        <option value="inactive">inactive</option>
+                      </select>
+                    </div>
+
+
+
+                  </div>
                 </div>
-                <div className="detailItem">
-                  <span className="itemKey">Phone:</span>
-                  <span className="itemValue">+1 2345 67 89</span>
+                <div >
+                  <button className="editButton" type="submit">Edit</button>
+
                 </div>
-                <div className="detailItem">
-                  <span className="itemKey">Address:</span>
-                  <span className="itemValue">
-                    Elton St. 234 Garden Yd. NewYork
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Country:</span>
-                  <span className="itemValue">USA</span>
-                </div>
-              </div>
-            </div>
+              </form>
+            )}
           </div>
-          <div className="right">
-            <Chart aspect={3 / 1} title="User Spending ( Last 6 Months)" />
-          </div>
-        </div>
-        <div className="bottom">
-        <h1 className="title">Last Transactions</h1>
-          <List/>
         </div>
       </div>
+
+
     </div>
   );
+
 };
 
 export default Single;
