@@ -31,9 +31,10 @@ function App() {
               <Route index element={<RequireAuth>
                 <List title="Restaurants" />
               </RequireAuth>} />
-              <Route path=":id" element={<RequireAuth>
-                <Single />
-              </RequireAuth>} />
+              <Route path=":id" element={
+                <RequireAuth>
+                  <Single title="Restaurant infos" />
+                </RequireAuth>} />
               <Route
                 path="new"
                 element={<RequireAuth><New inputs={restaurantInputs} title="Add New Restaurant" /></RequireAuth>}
@@ -41,10 +42,18 @@ function App() {
             </Route>
             <Route path="products">
               <Route index element={<RequireAuth><List title="Products" /></RequireAuth>} />
-              <Route path=":productId" element={<RequireAuth><Single /></RequireAuth>} />
+              <Route path=":restaurantId/:productId" element={<RequireAuth><Single title="Product infos" /></RequireAuth>} />
               <Route
                 path="new"
                 element={<RequireAuth><New inputs={productInputs} title="Add New Product" /></RequireAuth>}
+              />
+            </Route>
+            <Route path="categories">
+              <Route index element={<RequireAuth><List title="Categories" /></RequireAuth>} />
+              <Route path=":categoryId" element={<RequireAuth><Single /></RequireAuth>} />
+              <Route
+                path="new"
+                element={<RequireAuth><New inputs={productInputs} title="Add New Category" /></RequireAuth>}
               />
             </Route>
           </Route>

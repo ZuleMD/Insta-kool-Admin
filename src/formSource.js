@@ -11,12 +11,7 @@ export const restaurantInputs = [
     type: "text",
     placeholder: "Adresse",
   },
-  {
-    id: "phone",
-    label: "Phone number",
-    type: "text",
-    placeholder: "Phone number",
-  },
+
 
 
 ];
@@ -38,8 +33,10 @@ export const productInputs = [
   {
     id: "price",
     label: "Price",
-    type: "number",
+    type: "text",
     placeholder: "Price",
-  },
+    step: "0.01"
+  }
+
 
 ];

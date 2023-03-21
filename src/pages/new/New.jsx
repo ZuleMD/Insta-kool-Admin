@@ -13,12 +13,15 @@ import {
 import { db, storage } from "../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const New = ({ inputs, title }) => {
   const [file, setFile] = useState("");
   const [data, setData] = useState({});
   const [per, setPerc] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const navigate = useNavigate()
 
@@ -32,6 +35,19 @@ const New = ({ inputs, title }) => {
       setRestaurants(restaurantsData);
     };
     fetchRestaurants();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const querySnapshot = await getDocs(collection(db, "categories"));
+      const categoriesData = [];
+      querySnapshot.forEach((doc) => {
+        categoriesData.push({ id: doc.id, name: doc.data().categoryName });
+      });
+      setCategories(categoriesData);
+      console.log(categoriesData);
+    };
+    fetchCategories();
   }, []);
 
 
@@ -89,7 +105,7 @@ const New = ({ inputs, title }) => {
 
     if (title === "Add New Product") {
       try {
-        const restaurantName = data.restaurant;
+        const restaurantName = data.restaurantName;
         const querySnapshot = await getDocs(collection(db, "restaurants"));
         let restaurantRef;
 
@@ -115,7 +131,21 @@ const New = ({ inputs, title }) => {
       } catch (err) {
         console.log(err);
       }
-    } else {
+
+    } else if (title == "Add New Category") {
+      try {
+
+        await addDoc(collection(db, 'categories'), {
+          ...data,
+          status: "active",
+          timeStamp: serverTimestamp(),
+        });
+        navigate(-1)
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    else {
       try {
 
         await addDoc(collection(db, 'restaurants'), {
@@ -164,17 +194,42 @@ const New = ({ inputs, title }) => {
                 />
               </div>
 
-              {inputs.map((input) => (
-                <div className="formInput" key={input.id}>
-                  <label>{input.label}</label>
+              {title === "Add New Category" && (
+                <div className="formInput">
+                  <label>Name</label>
                   <input
-                    id={input.id}
-                    type={input.type}
-                    placeholder={input.placeholder}
+                    type="text"
+                    id="categoryName" name="categoryName"
+                    placeholder="Name"
                     onChange={handleInput}
                   />
-                </div>
-              ))}
+                </div>)}
+
+              {(title === "Add New Restaurant" || title === "Add New Product") && (
+                inputs.map((input) => (
+                  <div className="formInput" key={input.id}>
+                    <label>{input.label}</label>
+                    <input
+                      id={input.id}
+                      type={input.type}
+                      placeholder={input.placeholder}
+                      onChange={handleInput}
+                    />
+                  </div>
+                ))
+              )}
+
+              {title === "Add New Restaurant" && (<div className="formInput">
+                <label>Phone number</label>
+                <PhoneInput
+                  name="phone"
+                  placeholder="Enter phone number"
+                  value={data.phone}
+                  onChange={(value) => setData({ ...data, phone: value })}
+                />
+              </div>)}
+
+
 
               {title === "Add New Product" && (
 
@@ -184,17 +239,11 @@ const New = ({ inputs, title }) => {
                     <option disabled selected value="">
                       Select a category
                     </option>
-                    <option value="fast food">Fast Food</option>
-                    <option value="traditional food">Traditional Food</option>
-                    <option value="Salads">Salads</option>
-                    <option value="Mexican">Mexican</option>
-                    <option value="Chinese">Chinese</option>
-                    <option value="Japanese">Japanese</option>
-                    <option value="Seafood">Seafood</option>
-                    <option value="Vegetarian/vegan food">Vegetarian/vegan food</option>
-                    <option value="Desserts/sweets">Desserts/sweets</option>
-                    <option value="Beverages ">Beverages </option>
-                    <option value="Grill">Grill</option>
+                    {categories.map((categorie) => (
+                      <option key={categorie.id} value={categorie.name}>
+                        {categorie.name}
+                      </option>
+                    ))}
                   </select>
 
                 </div>
@@ -205,7 +254,7 @@ const New = ({ inputs, title }) => {
               {title === "Add New Product" && (
                 <div className="formInput">
                   <label>Restaurant Name</label>
-                  <select id="restaurant" name="restaurant" onChange={handleInput}
+                  <select id="restaurantName" name="restaurantName" onChange={handleInput}
                   >
                     <option disabled selected value="">
                       Select a restaurant

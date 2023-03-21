@@ -41,8 +41,16 @@ export const restaurantColumns = [
 export const productColumns = [
   {
     field: "name",
-    headerName: "Name",
-    width: 200,
+    headerName: "Product",
+    width: 230,
+    renderCell: (params) => {
+      return (
+        <div className="cellWithImg">
+          <img className="cellImg" src={params.row.img} alt="avatar" />
+          {params.row.name}
+        </div>
+      );
+    },
   },
   {
     field: "category",
@@ -60,18 +68,36 @@ export const productColumns = [
     width: 250,
   },
   {
-    field: "restaurant",
+    field: "restaurantName",
     headerName: "Restaurant",
     width: 250,
   },
+
   {
-    field: "img",
-    headerName: "Image",
-    width: 150,
+    field: "status",
+    headerName: "Status",
+    width: 160,
+    renderCell: (params) => {
+      return (
+        <div className={`cellWithStatus ${params.row.status}`}>
+          {params.row.status}
+        </div>
+      );
+    },
+  },
+];
+
+
+export const categoryColumns = [
+  {
+    field: "categoryName",
+    headerName: "Category",
+    width: 230,
     renderCell: (params) => {
       return (
         <div className="cellWithImg">
-          <img className="cellImg" src={params.row.img} alt="product image" />
+          <img className="cellImg" src={params.row.img} alt="avatar" />
+          {params.row.categoryName}
         </div>
       );
     },
