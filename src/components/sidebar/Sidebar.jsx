@@ -11,10 +11,17 @@ import { Link } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { useContext } from "react";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import { AuthContext } from "../../context/AuthContext"
 
 
 const Sidebar = () => {
-  const { dispatch } = useContext(DarkModeContext);
+  const { dispatch: darkModeDispatch } = useContext(DarkModeContext);
+  const { dispatch: authDispatch } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    authDispatch({ type: "LOGOUT" });
+  };
+
   return (
     <div className="sidebar">
       <div className="top">
@@ -68,13 +75,13 @@ const Sidebar = () => {
           </li>
           <li>
             <ExitToAppIcon className="icon" />
-            <span>Logout</span>
+            <span onClick={handleLogout}>Logout</span>
           </li>
           <p className="title">MODE</p>
           <li>
             <DarkModeOutlinedIcon
               className="icon"
-              onClick={() => dispatch({ type: "TOGGLE" })}
+              onClick={() => darkModeDispatch({ type: "TOGGLE" })}
             />
           </li>
         </ul>

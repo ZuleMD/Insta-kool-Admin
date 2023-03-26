@@ -101,5 +101,19 @@ export const categoryColumns = [
         </div>
       );
     },
+
+  },
+
+  {
+    field: "status",
+    headerName: "Status",
+    width: 160,
+    renderCell: (params) => {
+      return (
+        <div className={`cellWithStatus ${params.row.status}`}>
+          {params.row.status}
+        </div>
+      );
+    },
   },
 ];

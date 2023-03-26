@@ -48,14 +48,19 @@ function App() {
                 element={<RequireAuth><New inputs={productInputs} title="Add New Product" /></RequireAuth>}
               />
             </Route>
+
+
             <Route path="categories">
               <Route index element={<RequireAuth><List title="Categories" /></RequireAuth>} />
-              <Route path=":categoryId" element={<RequireAuth><Single /></RequireAuth>} />
+              <Route path=":id" element={<RequireAuth><Single title="Category infos" /></RequireAuth>} />
               <Route
                 path="new"
                 element={<RequireAuth><New inputs={productInputs} title="Add New Category" /></RequireAuth>}
               />
             </Route>
+
+
+
           </Route>
         </Routes>
       </BrowserRouter>

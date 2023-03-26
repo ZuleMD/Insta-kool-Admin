@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 const Single = ({ title }) => {
   const [restaurant, setRestaurant] = useState(null);
   const [product, setProduct] = useState(null);
+  const [category, setCategory] = useState(null);
   const [formData, setFormData] = useState({});
   const { id } = useParams();
   const { restaurantId, productId } = useParams();
@@ -38,6 +39,20 @@ const Single = ({ title }) => {
     }
   };
 
+  const fetchCategory = async () => {
+    try {
+      const categoryRef = doc(db, "categories", id);
+      const snapshot = await getDoc(categoryRef);
+      if (snapshot.exists()) {
+        setCategory(snapshot.data());
+      } else {
+        console.log("Category not found");
+      }
+    } catch (error) {
+      console.error("Error fetching Category:", error);
+    }
+  };
+
   const fetchProduct = async () => {
     try {
       const productRef = doc(db, "restaurants", restaurantId, "products", productId);
@@ -58,6 +73,9 @@ const Single = ({ title }) => {
       fetchRestaurant();
     } else if (title === "Product infos") {
       fetchProduct();
+
+    } else if (title === "Category infos") {
+      fetchCategory();
     }
   }, [title]);
 
@@ -132,7 +150,7 @@ const Single = ({ title }) => {
         console.log(`Error updating product with ID ${productId}: ${err}`);
       }
 
-    } else {
+    } else if (title === "Restaurant infos") {
       //update restaurant collection
       try {
         const restaurantRef = doc(db, "restaurants", id);
@@ -141,6 +159,16 @@ const Single = ({ title }) => {
       } catch (error) {
         console.error("Error updating restaurant:", error);
       }
+    } else {
+      //update category collection
+      try {
+        const categoryRef = doc(db, "categories", id);
+        await updateDoc(categoryRef, formData);
+        navigate(-1)
+      } catch (error) {
+        console.error("Error updating category:", error);
+      }
+
     }
 
   };
@@ -345,6 +373,79 @@ const Single = ({ title }) => {
               </form>
             )
             }
+
+            {category && (
+              <form onSubmit={handleSubmit}>
+                <div className="item">
+                  <img
+                    src={formData.img || category.img}
+                    alt=""
+                    className="itemImg"
+                  />
+
+                  <div className="leftpic">
+                    <label htmlFor="imageInput">
+                      <img
+                        src={
+                          "https://icon-library.com/images/no-image-icon/no-image-icon-0.jpg"
+                        }
+                        alt=""
+                      />
+                    </label>
+                    <input
+                      type="file"
+                      id="imageInput"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleImageChange}
+                    />
+                  </div>
+                  <div className="details">
+                    <div className="detailItem">
+                      <label htmlFor="categoryName" className="itemKey">
+                        Name:
+                      </label>
+                      <input
+                        type="text"
+                        name="categoryName"
+                        id="categoryName"
+                        className="itemValue"
+                        value={
+                          formData.categoryName !== undefined
+                            ? formData.categoryName
+                            : category?.categoryName || ""
+                        }
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="detailItem">
+                      <label htmlFor="status" className="itemKey">
+                        Status:
+                      </label>
+                      <select
+                        name="status"
+                        id="status"
+                        value={formData.status !== undefined ? formData.status : category?.status || ''}
+                        onChange={handleInputChange}
+                      >
+                        <option value="active">active</option>
+                        <option value="inactive">inactive</option>
+                      </select>
+                    </div>
+                  </div>
+
+
+                </div>
+                <div >
+                  <button disabled={per !== null && per < 100} className="editButton" type="submit">Edit</button>
+
+                </div>
+              </form>
+            )
+            }
+
+
           </div>
         </div>
       </div>
