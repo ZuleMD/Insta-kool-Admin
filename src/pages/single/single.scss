@@ -7,17 +7,15 @@
 
 
   .singleContainer {
-    display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
 
-    margin: 0 20px;
+    margin-left: 300px;
     padding: 40px;
     flex: 6;
 
     .top {
-      margin-bottom: 20px;
+      margin-top: 40px;
 
       .left {
         position: relative;

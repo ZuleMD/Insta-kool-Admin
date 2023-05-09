@@ -3,7 +3,7 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  doc, getDoc, updateDoc, collection,
+  doc, getDoc, updateDoc, collection, onSnapshot,
   getDocs,
   serverTimestamp
 } from "firebase/firestore";
@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 
 const Single = ({ title }) => {
   const [restaurant, setRestaurant] = useState(null);
+  const [restaurants, setRestaurants] = useState([]);
+
   const [product, setProduct] = useState(null);
   const [category, setCategory] = useState(null);
   const [formData, setFormData] = useState({});
@@ -38,6 +40,30 @@ const Single = ({ title }) => {
       console.error("Error fetching restaurant:", error);
     }
   };
+
+  const fetchRestaurants = async () => {
+    const unsub = onSnapshot(
+      collection(db, "restaurants"),
+      (snapShot) => {
+        let list = [];
+        snapShot.docs.forEach((doc) => {
+          const restaurant = { id: doc.id, ...doc.data() };
+          list.push(restaurant);
+
+        });
+        setRestaurants(list);
+
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+
+    return () => {
+      unsub();
+    };
+  };
+
 
   const fetchCategory = async () => {
     try {
@@ -73,6 +99,7 @@ const Single = ({ title }) => {
       fetchRestaurant();
     } else if (title === "Product infos") {
       fetchProduct();
+      fetchRestaurants();
 
     } else if (title === "Category infos") {
       fetchCategory();
@@ -227,7 +254,7 @@ const Single = ({ title }) => {
                     </div>
                     <div className="detailItem">
                       <label htmlFor="phone" className="itemKey">
-                        Phone:a
+                        Phone:
                       </label>
                       <input
                         type="text"
@@ -277,6 +304,7 @@ const Single = ({ title }) => {
               </form>
             )
             }
+
             {product && (
               <form onSubmit={handleSubmit}>
                 <div className="item">
@@ -347,6 +375,39 @@ const Single = ({ title }) => {
                         onChange={handleInputChange}
                       />
                     </div>
+                    <div className="detailItem">
+                      <label htmlFor="description" className="itemKey">
+                        Description:
+                      </label>
+                      <input
+                        type="text"
+                        name="description"
+                        id="description"
+                        className="itemValue"
+                        value={formData.description !== undefined ? formData.description : product?.description || ''}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="detailItem">
+                      <label htmlFor="restuarant" className="itemKey">
+                        Restaurant:
+                      </label>
+                      <select
+                        name="restaurant"
+                        id="restaurant"
+                        value={formData.restaurantName !== undefined ? formData.restaurantName : product?.restaurantName || ''}
+                        onChange={handleInputChange}
+                      >
+                        {restaurants.map((restaurant) => (
+                          <option key={restaurant.id} value={restaurant.name}>
+                            {restaurant.name}
+                          </option>
+                        ))}
+
+                      </select>
+                    </div>
+
+
                     <div className="detailItem">
                       <label htmlFor="status" className="itemKey">
                         Status:
