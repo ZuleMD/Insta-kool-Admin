@@ -59,6 +59,11 @@ function App() {
               />
             </Route>
 
+            <Route path="orders">
+              <Route index element={<RequireAuth><List title="Orders" /></RequireAuth>} />
+
+            </Route>
+
 
 
           </Route>
